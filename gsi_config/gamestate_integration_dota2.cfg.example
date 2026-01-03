@@ -23,6 +23,7 @@
 #    (например: your-app-name.railway.app)
 # 2. Замените YOUR_RAILWAY_DOMAIN на имя вашего приложения
 #    Например: "https://dota-spectator.railway.app/"
+#    ВАЖНО: НЕ указывайте порт! Railway обрабатывает это автоматически.
 # 3. Скопируйте этот файл в папку конфигурации Dota 2:
 #    Windows: C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\game\dota\cfg\
 #    Linux: ~/.steam/steam/steamapps/common/dota 2 beta/game/dota/cfg/

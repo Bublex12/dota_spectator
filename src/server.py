@@ -161,46 +161,71 @@ async def health_check():
 @app.get("/players")
 async def get_players():
     """
-    Endpoint для получения аккаунтов игроков из последних полученных данных.
+    Endpoint для получения аккаунтов игроков из последнего файла матча.
     """
-    # Получаем последний файл матча, если он существует
-    if file_manager.current_file_path and file_manager.current_file_path.exists():
-        try:
-            import json
-            with open(file_manager.current_file_path, 'r', encoding='utf-8') as f:
-                match_data = json.load(f)
-            
-            # Извлекаем аккаунты из последнего состояния
-            current_state = match_data.get("current_state", match_data.get("initial_state", {}))
-            raw_data = current_state.get("raw_data", {})
-            
-            players = data_processor.extract_players_accounts(raw_data)
-            
-            # Добавляем ссылки на Dotabuff и OpenDota для каждого игрока
-            players_with_links = []
-            for player in players:
-                player_dict = player.copy()
-                steamid = player.get("steamid")
-                if steamid:
-                    player_dict["dotabuff_url"] = get_dotabuff_url(str(steamid))
-                    player_dict["opendota_url"] = get_opendota_url(str(steamid))
-                players_with_links.append(player_dict)
-            
-            return {
-                "status": "ok",
-                "players": players_with_links,
-                "count": len(players_with_links)
-            }
-        except Exception as e:
-            logger.error(f"Ошибка при получении данных игроков: {e}")
-            return {
-                "status": "error",
-                "message": str(e)
-            }
-    else:
+    def get_latest_match_file():
+        """Находит последний файл матча."""
+        output_dir = file_manager.output_dir
+        
+        if not output_dir.exists():
+            return None
+        
+        # Ищем последний файл по датам
+        date_dirs = sorted([d for d in output_dir.iterdir() if d.is_dir()], reverse=True)
+        
+        for date_dir in date_dirs:
+            match_files = sorted(date_dir.glob("match_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+            if match_files:
+                return match_files[0]
+        
+        return None
+    
+    # Получаем последний файл матча
+    match_file = get_latest_match_file()
+    
+    if not match_file:
         return {
             "status": "no_match",
-            "message": "Нет активного матча"
+            "message": "Файлы матчей не найдены"
+        }
+    
+    try:
+        import json
+        with open(match_file, 'r', encoding='utf-8') as f:
+            match_data = json.load(f)
+        
+        # Извлекаем аккаунты из последнего состояния
+        current_state = match_data.get("current_state", match_data.get("initial_state", {}))
+        raw_data = current_state.get("raw_data", {})
+        
+        # Если нет raw_data, пробуем использовать сам current_state
+        if not raw_data:
+            raw_data = current_state
+        
+        players = data_processor.extract_players_accounts(raw_data)
+        
+        # Добавляем ссылки на Dotabuff и OpenDota для каждого игрока
+        players_with_links = []
+        for player in players:
+            player_dict = player.copy()
+            steamid = player.get("steamid")
+            if steamid:
+                player_dict["dotabuff_url"] = get_dotabuff_url(str(steamid))
+                player_dict["opendota_url"] = get_opendota_url(str(steamid))
+            players_with_links.append(player_dict)
+        
+        return {
+            "status": "ok",
+            "players": players_with_links,
+            "count": len(players_with_links),
+            "match_file": str(match_file.name),
+            "match_id": match_data.get("match_id")
+        }
+    except Exception as e:
+        logger.error(f"Ошибка при получении данных игроков: {e}")
+        return {
+            "status": "error",
+            "message": str(e)
         }
 
 
