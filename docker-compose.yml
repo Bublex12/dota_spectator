@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # GSI сервер для приема данных от Dota 2
+  gsi-server:
+    build: .
+    container_name: dota-gsi-server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./output:/app/output
+      - ./gsi_config:/app/gsi_config
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3000
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    command: python src/server.py
+    networks:
+      - dota-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Discord бот
+  discord-bot:
+    build: .
+    container_name: dota-discord-bot
+    volumes:
+      - ./output:/app/output
+      - ./.env:/app/.env:ro
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    command: python discord_bot.py
+    depends_on:
+      gsi-server:
+        condition: service_healthy
+    networks:
+      - dota-network
+
+networks:
+  dota-network:
+    driver: bridge
+
+volumes:
+  output-data:
+    driver: local
+
