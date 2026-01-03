@@ -1,5 +1,7 @@
 """Утилиты для работы с данными Dota 2."""
-from typing import Optional
+from typing import Optional, List, Dict, Any
+import urllib.request
+import json
 
 
 def get_dotabuff_url(steamid: str) -> Optional[str]:
@@ -53,4 +55,62 @@ def get_opendota_url(steamid: str) -> Optional[str]:
         return f"https://www.opendota.com/players/{steamid}"
     
     return None
+
+
+def get_players_from_opendota(match_id: str) -> Optional[List[Dict[str, Any]]]:
+    """
+    Получает информацию обо всех игроках матча через OpenDota API.
+    
+    Args:
+        match_id: ID матча (например, "8633245667")
+        
+    Returns:
+        Список игроков с информацией (steamid, name, team) или None при ошибке
+    """
+    try:
+        url = f"https://api.opendota.com/api/matches/{match_id}"
+        
+        with urllib.request.urlopen(url, timeout=5) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            
+            players = []
+            
+            # OpenDota возвращает игроков в массиве players
+            if "players" in data and isinstance(data["players"], list):
+                for player in data["players"]:
+                    account_id = player.get("account_id")
+                    # account_id может быть None для анонимных игроков
+                    if account_id:
+                        # Конвертируем account_id в SteamID64
+                        steamid64 = account_id_to_steamid64(account_id)
+                        if steamid64:
+                            players.append({
+                                "steamid": str(steamid64),
+                                "name": player.get("personaname") or player.get("name") or "Unknown",
+                                "team": "radiant" if player.get("isRadiant") else "dire"
+                            })
+            
+            return players if players else None
+            
+    except Exception as e:
+        print(f"Ошибка при получении данных из OpenDota: {e}")
+        return None
+
+
+def account_id_to_steamid64(account_id: int) -> Optional[str]:
+    """
+    Конвертирует account_id в SteamID64.
+    
+    Args:
+        account_id: Account ID игрока
+        
+    Returns:
+        SteamID64 в виде строки или None
+    """
+    if not account_id:
+        return None
+    
+    # Формула конвертации: SteamID64 = account_id + 76561197960265728
+    steamid64 = account_id + 76561197960265728
+    return str(steamid64)
 

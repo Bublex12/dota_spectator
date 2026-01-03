@@ -56,7 +56,9 @@ def get_players_from_match(match_file: Path) -> List[Dict[str, Any]]:
             raw_data = current_state
         
         processor = DataProcessor()
-        players = processor.extract_players_accounts(raw_data)
+        # Получаем match_id для запроса к OpenDota
+        match_id = match_data.get("match_id")
+        players = processor.extract_players_accounts(raw_data, match_id)
         
         # Добавляем ссылки на Dotabuff
         players_with_links = []

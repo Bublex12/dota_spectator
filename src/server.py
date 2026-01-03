@@ -94,7 +94,7 @@ async def receive_gsi_data(request: Request):
                 logger.info(f"Матч начался (ID: {current_match_id})")
                 
                 # Выводим аккаунты игроков
-                players = data_processor.extract_players_accounts(raw_data)
+                players = data_processor.extract_players_accounts(raw_data, incoming_match_id)
                 if players:
                     logger.info(f"Игроки в матче ({len(players)}):")
                     for player in players:
@@ -115,8 +115,8 @@ async def receive_gsi_data(request: Request):
                 file_manager.start_new_match(processed_data)
                 logger.info("Матч начался (без ID)")
                 
-                # Выводим аккаунты игроков
-                players = data_processor.extract_players_accounts(raw_data)
+                # Выводим аккаунты игроков (без match_id для OpenDota)
+                players = data_processor.extract_players_accounts(raw_data, None)
                 if players:
                     logger.info(f"Игроки в матче ({len(players)}):")
                     for player in players:
@@ -202,7 +202,9 @@ async def get_players():
         if not raw_data:
             raw_data = current_state
         
-        players = data_processor.extract_players_accounts(raw_data)
+        # Получаем match_id для запроса к OpenDota
+        match_id = match_data.get("match_id")
+        players = data_processor.extract_players_accounts(raw_data, match_id)
         
         # Добавляем ссылки на Dotabuff и OpenDota для каждого игрока
         players_with_links = []

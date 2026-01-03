@@ -2,6 +2,8 @@
 import logging
 from typing import Dict, Any, Optional, List
 
+from utils import get_players_from_opendota
+
 logger = logging.getLogger(__name__)
 
 
@@ -277,18 +279,28 @@ class DataProcessor:
         return game_state == "DOTA_GAMERULES_STATE_POST_GAME" or map_data.get("win_team") is not None
     
     @staticmethod
-    def extract_players_accounts(raw_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def extract_players_accounts(raw_data: Dict[str, Any], match_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Извлекает аккаунты всех игроков из данных GSI.
+        Пытается получить данные обо всех игроках через OpenDota API, если доступен match_id.
         
         Args:
             raw_data: Сырые данные от Dota 2 GSI
+            match_id: ID матча для получения данных через OpenDota API
             
         Returns:
             Список словарей с информацией об игроках (steamid, name, team)
         """
         players = []
         
+        # Сначала пытаемся получить данные через OpenDota API, если есть match_id
+        if match_id:
+            opendota_players = get_players_from_opendota(match_id)
+            if opendota_players:
+                logger.info(f"Получено {len(opendota_players)} игроков через OpenDota API")
+                return opendota_players
+        
+        # Если OpenDota не сработал, используем данные из GSI
         # Текущий игрок (всегда доступен)
         player_data = raw_data.get("player", {})
         if player_data and isinstance(player_data, dict):
