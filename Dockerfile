@@ -30,5 +30,6 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
 # По умолчанию запускаем GSI сервер
+# Railway будет использовать startCommand из railway.json
 CMD ["python", "src/server.py"]
 

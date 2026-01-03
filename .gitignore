@@ -46,4 +46,8 @@ Thumbs.db
 
 # Environment variables
 .env
+.env.local
+
+# GSI config with real IP (example file should be committed)
+gsi_config/gamestate_integration_dota2.cfg
 

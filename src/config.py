@@ -6,8 +6,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent
 
 # Настройки сервера
-SERVER_HOST = "127.0.0.1"
-SERVER_PORT = 3000
+# Для Railway используем переменные окружения или значения по умолчанию
+SERVER_HOST = os.getenv("SERVER_HOST", "0.0.0.0")
+SERVER_PORT = int(os.getenv("PORT", os.getenv("SERVER_PORT", "3000")))
 
 # Пути к директориям
 OUTPUT_DIR = BASE_DIR / "output"

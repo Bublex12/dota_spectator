@@ -1,0 +1,30 @@
+"dota2"
+{
+	"uri" "https://YOUR_RAILWAY_DOMAIN.railway.app/"
+	"timeout" 5.0
+	"buffer" 0.1
+	"throttle" 0.1
+	"heartbeat" 30.0
+	"data"
+	{
+		"provider" 1
+		"map" 1
+		"player" 1
+		"hero" 1
+		"abilities" 1
+		"items" 1
+		"buildings" 1
+		"events" 1
+	}
+}
+
+# Инструкция:
+# 1. После деплоя на Railway, найдите ваш домен в настройках проекта
+#    (например: your-app-name.railway.app)
+# 2. Замените YOUR_RAILWAY_DOMAIN на имя вашего приложения
+#    Например: "https://dota-spectator.railway.app/"
+# 3. Скопируйте этот файл в папку конфигурации Dota 2:
+#    Windows: C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\game\dota\cfg\
+#    Linux: ~/.steam/steam/steamapps/common/dota 2 beta/game/dota/cfg/
+#    macOS: ~/Library/Application Support/Steam/steamapps/common/dota 2 beta/game/dota/cfg/
+

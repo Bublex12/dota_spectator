@@ -46,14 +46,21 @@ uv pip install -r requirements.txt
 
 ### 1. Настройка Game State Integration в Dota 2
 
-1. Найдите папку конфигурации Dota 2:
+1. **Определите адрес вашего сервера:**
+   - **Railway**: Используйте домен, который Railway предоставляет (например: `your-app.railway.app`)
+   - **Локально**: `127.0.0.1` или IP вашего компьютера
+   - Запустите `python scripts/get_server_ip.py` для помощи
+
+2. **Настройте конфигурацию GSI:**
+   - Скопируйте `gsi_config/gamestate_integration_dota2.cfg.example` в `gsi_config/gamestate_integration_dota2.cfg`
+   - Замените `YOUR_SERVER_IP` на адрес вашего сервера
+   - Для Railway: `https://your-app.railway.app` (Railway автоматически предоставляет HTTPS)
+   - Для локального: `http://127.0.0.1:3000/`
+
+3. **Скопируйте файл в папку конфигурации Dota 2:**
    - Windows: `C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\game\dota\cfg\`
    - Linux: `~/.steam/steam/steamapps/common/dota 2 beta/game/dota/cfg/`
    - macOS: `~/Library/Application Support/Steam/steamapps/common/dota 2 beta/game/dota/cfg/`
-
-2. Скопируйте файл `gsi_config/gamestate_integration_dota2.cfg` в эту папку
-
-3. Если файл `gamestate_integration_dota2.cfg` уже существует, откройте его и добавьте или замените содержимое настройками из нашего файла
 
 ### 2. Настройка файрвола (если необходимо)
 
